@@ -1,9 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace PizzaStore.DB;
 
-public record Pizza 
+public record Pizza
 {
   public int Id {get; set;} 
   public string ? Title { get; set; }
+}
+
+public class P: DbContext
+{
+  public P(DbContextOptions options): base(options){}
+
+  public DbSet<Pizza> Pizzas { get; set; }
 }
 
 public class PizzaDb

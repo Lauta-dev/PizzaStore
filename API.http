@@ -1,22 +1,20 @@
-GET http://localhost:5000
+GET http://localhost:3000
 
-POST http://localhost:5000/add
+GET http://localhost:3000/1
+
+POST http://localhost:3000/add
 Content-Type: application/json
 
 {
-  "Title": "Assasin's Creed IV Black Flag",
+  "Title": "Grand Theft Auto 2",
   "Id": 1
 }
 
-PUT http://localhost:5000/update
+PUT http://localhost:3000/update
 Content-Type: application/json
-
 {
   "Id": 1,
   "Title": "Assasin's Creed II"
 }
 
-DELETE http://localhost:5000/del?id=5
-Content-Type: application/json
-
-
+DELETE http://localhost:3000/del?id=5

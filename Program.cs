@@ -26,27 +26,41 @@
  * */
 
 using PizzaStore.DB;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // `builder` tiene la propiedad service que se puede agregar caracteristicas
 // Se configura la funcionalidades que tendra la API
 builder.Services.AddCors(ops => {}); // Añadir cors
 
+string alternarivePort = "3000";
+int PORT = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? alternarivePort);
+
 // Expecificar el puerto
 builder.WebHost.ConfigureKestrel(opts => 
 {
-  opts.ListenAnyIP(5000);
+  opts.ListenAnyIP(PORT);
 });
 
+// Usar base de dato en memoria ram
+//builder.Services.AddDbContext<P>(opts => opts.UseInMemoryDatabase("i"));
+
+
 builder.Services.AddEndpointsApiExplorer();
+
+// Si no entiendo mal, esto creara la base de datos si no se encuentra
+var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
+
+// Uso de una base de datos SQLite
+builder.Services.AddSqlite<P>(connectionString);
 
 // Aquí se usa
 var app = builder.Build();
 
-app.MapGet("/", () => {
-  return PizzaDb.GetPizzas();
+app.MapGet("/", async (P db) => {
+  return await db.Pizzas.ToListAsync();
 });
 
 app.MapGet("/{id}", (int id) =>
@@ -54,9 +68,11 @@ app.MapGet("/{id}", (int id) =>
   return PizzaDb.GetPizzas(id);
 });
 
-app.MapPost("/add",(Pizza pizza) =>
+app.MapPost("/add", async(P db, Pizza pizza) =>
 {
-  return PizzaDb.AddGame(pizza.Title);
+  await db.Pizzas.AddAsync(pizza);
+  await db.SaveChangesAsync();
+  return Results.Created($"/add/{pizza.Id}", pizza);
 });
 
 app.MapPut("/update", (Pizza pizza) =>
